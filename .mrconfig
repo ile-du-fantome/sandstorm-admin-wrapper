@@ -1,0 +1,3 @@
+
+[references/sandstorm-admin-wrapper]
+checkout = git clone 'https://github.com/Joe-Klauza/sandstorm-admin-wrapper' 'sandstorm-admin-wrapper'
