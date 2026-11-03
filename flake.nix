@@ -25,6 +25,48 @@
             }
           )
         );
+
+      mkRubyEnvironment =
+        pkgs:
+        let
+          ruby = pkgs.ruby_4_0;
+
+          # Standalone bundler in nixpkgs is still 2.7.X. Use the bundler
+          # version that ships with Ruby instead
+          bundler = pkgs.lib.makeOverridable (
+            {
+              ruby ? pkgs.ruby_4_0,
+              ...
+            }:
+            let
+              gemDir = "${ruby}/${ruby.gemPath}/gems";
+              bundlerGemName = builtins.head (
+                builtins.filter (name: nixpkgs.lib.hasPrefix "bundler-" name) (
+                  builtins.attrNames (builtins.readDir gemDir)
+                )
+              );
+              bundlerVersion = nixpkgs.lib.removePrefix "bundler-" bundlerGemName;
+            in
+            pkgs.runCommand "bundler-${bundlerVersion}"
+              {
+                version = bundlerVersion;
+              }
+              ''
+                mkdir -p $out/${ruby.gemPath}/gems
+                ln -s ${ruby}/${ruby.gemPath}/gems/${bundlerGemName} \
+                  $out/${ruby.gemPath}/gems/${bundlerGemName}
+              ''
+          ) { };
+
+          gems = (pkgs.bundlerEnv.override { inherit bundler; }) {
+            name = "sandstorm-admin-wrapper-gems";
+            gemdir = ./admin-interface;
+            inherit ruby;
+          };
+        in
+        {
+          inherit gems ruby;
+        };
     in
     {
       packages = forAllSystems (
@@ -32,13 +74,7 @@
         let
           version = self.shortRev or self.dirtyShortRev or "dev";
 
-          ruby = pkgs.ruby_4_0;
-
-          gems = pkgs.bundlerEnv {
-            name = "sandstorm-admin-wrapper-gems";
-            gemdir = ./admin-interface;
-            inherit ruby;
-          };
+          inherit (mkRubyEnvironment pkgs) gems;
 
           # Keep the source in the Nix store, assemble a writable runtime tree
           # on first run
@@ -158,12 +194,7 @@
       devShells = forAllSystems (
         pkgs:
         let
-          ruby = pkgs.ruby_4_0;
-          gems = pkgs.bundlerEnv {
-            name = "sandstorm-admin-wrapper-gems";
-            gemdir = ./admin-interface;
-            inherit ruby;
-          };
+          inherit (mkRubyEnvironment pkgs) gems;
         in
         {
           default = pkgs.mkShell {
