@@ -1,3 +1,12 @@
 
 [references/sandstorm-admin-wrapper]
 checkout = git clone 'https://github.com/Joe-Klauza/sandstorm-admin-wrapper' 'sandstorm-admin-wrapper'
+
+[references/nixpkgs]
+checkout = git clone 'https://github.com/NixOS/nixpkgs' 'nixpkgs'
+
+[references/linux]
+checkout = git clone 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git' 'linux'
+
+[references/sinatra]
+checkout = git clone 'https://github.com/sinatra/sinatra' 'sinatra'
