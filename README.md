@@ -113,6 +113,23 @@ Command-line parameters:
 
 [Docker instructions](/Docker.md) are also available.
 
+### Nix
+
+A Nix flake provides a development shell and package with dependencies. The development shell links the Nix `steamcmd` into `steamcmd/installation` so `linux_start.sh` should work as usual.
+
+The package keeps mutable state at `$XDG_DATA_HOME/sandstorm-admin-wrapper` by default. Set `SAW_ROOT` environment variable to override.
+
+The in-app updated is disabled when using the flake package.
+
+`admin-interface/gemset.nix` manages gem dependencies and their hashes. When `admin-interface/Gemfile` is changed, `gemset.nix` needs to be regenerated:
+
+```bash
+cd admin-interface
+BUNDLE_FORCE_RUBY_PLATFORM=true bundle lock --update
+bundle lock --remove-platform x86_64-linux # keep lockfile source-only
+bundix
+```
+
 ### Starting the Admin Wrapper
 
 - Run the start script for your OS (`windows_start.bat` for Windows, `linux_start.sh` for Linux (BASH))
