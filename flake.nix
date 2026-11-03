@@ -170,6 +170,7 @@
             packages = [
               gems
               gems.wrappedRuby
+              pkgs.bundix
               pkgs.steamcmd
               pkgs.git
             ];
